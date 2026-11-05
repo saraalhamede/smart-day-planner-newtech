@@ -7,9 +7,10 @@
     "dev": "node --watch src/index.js",
     "start": "node src/index.js",
     "db:init": "node scripts/init-db.js",
+    "db:migrate": "node scripts/migrate-db.js",
     "db:check": "node scripts/check-db.js",
-    "test": "node --test test/auth.test.js test/config.test.js",
-    "test:integration": "node --test test/mysql.integration.test.js"
+    "test": "node --test test/auth.test.js test/config.test.js test/task-validation.test.js",
+    "test:integration": "node --test test/mysql.integration.test.js test/tasks.integration.test.js"
   },
   "dependencies": {
     "dotenv": "^17.2.3",

@@ -5,11 +5,12 @@ import { rateLimit } from 'express-rate-limit';
 import { fileURLToPath } from 'node:url';
 import { hashPassword, verifyPassword } from './passwords.js';
 import { requireAuth } from './middleware/require-auth.js';
+import { taskRoutes } from './tasks/routes.js';
 
 const publicUser = ({ id, name, email }) => ({ id, name, email });
 const sessionAction = (req, method) => new Promise((resolve, reject) => req.session[method]((error) => error ? reject(error) : resolve()));
 
-export function createApp({ config, users, store }) {
+export function createApp({ config, users, store, tasks }) {
   if (!store) throw new Error('An explicit server session store is required.');
   const app = express();
   app.disable('x-powered-by');
@@ -71,6 +72,7 @@ export function createApp({ config, users, store }) {
     res.clearCookie(cookieName, cookieOptions);
     res.status(204).end();
   });
+  app.use('/api/tasks', taskRoutes(authenticate, tasks));
   app.use('/api', (req, res) => res.status(404).json({ error: 'API route not found.' }));
   if (config.production) {
     const clientDist = fileURLToPath(new URL('../../client/dist/', import.meta.url));

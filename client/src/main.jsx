@@ -1,25 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
-
-async function api(path, body) {
-  let response;
-  try {
-    response = await fetch(`/api/auth/${path}`, {
-      method: body === undefined ? 'GET' : 'POST', credentials: 'same-origin',
-      headers: body === undefined ? {} : { 'Content-Type': 'application/json' },
-      ...(body === undefined ? {} : { body: JSON.stringify(body) }),
-    });
-  } catch { throw new Error('Cannot reach the server. Please try again.'); }
-  if (response.status === 204) return null;
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    const error = new Error(data.error || 'The server is unavailable. Please try again.');
-    error.status = response.status;
-    throw error;
-  }
-  return data;
-}
+import { authApi as api } from './api.js';
+import TasksPage from './tasks/TasksPage.jsx';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -61,7 +44,7 @@ function App() {
   return (
     <div className="app-shell">
       <header className="site-header"><a className="brand" href="/" aria-label="Smart Day Planner home"><span className="brand-icon" aria-hidden="true">✓</span><span>Smart Day <strong>Planner</strong></span></a><span className="project-tag">NEWTECH · GRADUATION PROJECT</span></header>
-      <main className="auth-layout">
+      {user ? <TasksPage user={user} onLogout={logout} signingOut={busy} authError={error} onSessionExpired={() => { setUser(null); setNotice('Your session expired. Please sign in again.'); setPage('login'); }} /> : <main className="auth-layout">
         <section className="intro" aria-labelledby="intro-title">
           <p className="eyebrow">A LITTLE SPACE FOR YOUR DAY</p>
           <h1 id="intro-title">A fresh start.<br /><span>A day of your own.</span></h1>
@@ -71,14 +54,7 @@ function App() {
         </section>
         <section className="auth-card" aria-labelledby="form-title">
           <p className="eyebrow">YOUR PERSONAL SPACE</p>
-          {loading ? <div role="status" className="loading">Checking your session…</div> : user ? <>
-            <span className="account-mark" aria-hidden="true">✓</span>
-            <h2 id="form-title">Welcome, {user.name}.</h2>
-            <p className="muted">You are signed in to your account.</p>
-            <dl className="account-details"><dt>Name</dt><dd>{user.name}</dd><dt>Email</dt><dd>{user.email}</dd></dl>
-            {error && <p role="alert" className="message error">{error}</p>}
-            <button className="primary" disabled={busy} onClick={logout}>{busy ? 'Signing out…' : 'Sign out'}</button>
-          </> : <>
+          {loading ? <div role="status" className="loading">Checking your session…</div> : <>
             <h2 id="form-title">{page === 'login' ? 'Welcome back.' : 'Make yourself at home.'}</h2>
             <p className="muted">{page === 'login' ? 'Sign in to your personal space.' : 'Create your Smart Day Planner account.'}</p>
             <div className="auth-switch" aria-label="Account options"><button type="button" aria-pressed={page === 'login'} onClick={() => changePage('login')} disabled={busy}>Sign in</button><button type="button" aria-pressed={page === 'register'} onClick={() => changePage('register')} disabled={busy}>Create account</button></div>
@@ -96,7 +72,7 @@ function App() {
             <p className="card-note">Your account. Your personal space.</p>
           </>}
         </section>
-      </main>
+      </main>}
       <footer>Smart Day Planner <span>Built for a simpler day.</span></footer>
     </div>
   );

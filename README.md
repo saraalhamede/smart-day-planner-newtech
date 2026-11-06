@@ -151,4 +151,4 @@ client/src/tasks/        Task form, list, delete dialog and page components
 docs/                    Actual Phase 1 verification report
 ```
 
-Phase 1 was checkpointed locally as `4d52415` after its baseline tests and secret review passed. Phase 2 is left uncommitted as requested. See `docs/phase-2-report.md` for actual verification. Calendar and Dashboard require a separate instruction.
+Phase 1 was checkpointed locally as `4d52415` after its baseline tests and secret review passed. Phase 2 implementation is saved in `d5278ac`; the final review on 6 November 2026 passed authentication/task tests, real MySQL integration tests, and the production build. See `docs/phase-2-report.md` for actual verification. Calendar and Dashboard require a separate instruction.

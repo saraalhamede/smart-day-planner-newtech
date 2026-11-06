@@ -1,8 +1,8 @@
 # Smart Day Planner — NewTech
 
-Independent NewTech Full Stack Graduation Project. **Phase 2: authentication and task management.**
+Independent NewTech Full Stack Graduation Project. **Phase 3: authentication, task management, and Daily Planner.**
 
-React + Vite client, Express API, MySQL users, persistent server sessions, and user-owned task CRUD. All interface text is English. Registration creates an account; sign-in is a separate step. No calendar, dashboard, AI, check-in, mood, or automatic scheduling features are included.
+React + Vite client, Express API, MySQL users, persistent server sessions, user-owned task CRUD, and a date-based Daily Planner. All interface text is English. Registration creates an account; sign-in is a separate step. No Calendar, Dashboard, AI, check-in, mood, or automatic scheduling features are included.
 
 ## Reference and independence
 
@@ -59,7 +59,7 @@ If Vite already runs for this project on port 5173, reuse it and run `npm start`
 | `npm run db:init` | Create only the new schema and its three tables, once |
 | `npm run db:migrate` | Add tasks to an existing Phase 1 schema, once; no reset |
 | `npm run db:check` | Verify real MySQL connection, table shape and session store readiness |
-| `npm test` | Isolated authentication/security and task input/date validation tests |
+| `npm test` | Server authentication/validation regression plus client calendar-date and daily-view model tests |
 | `npm run test:integration` | Real MySQL authentication, task CRUD, ownership, conflicts, concurrency, and actual backend restart tests; cleans up only generated QA records |
 | `npm run build` | Production frontend build |
 | `npm start` | Start API; in production also serve built frontend |
@@ -67,7 +67,7 @@ If Vite already runs for this project on port 5173, reuse it and run `npm start`
 
 Tests open temporary loopback HTTP ports. Restricted environments may require permission to connect to localhost. Integration tests require configured `.env`, an initialized database, and development mode. They fail instead of silently skipping when those are unavailable.
 
-The repository has no configured lint command or separate automated React test runner. Frontend verification uses the production build and browser QA; no additional test dependencies were introduced for Phase 2.
+The repository has no configured lint command or React component test runner. Client model tests use Node's built-in test runner (`npm run test -w client`); frontend verification also uses the production build and browser QA. No additional dependencies were introduced for Phases 2 or 3.
 
 ## API
 
@@ -121,6 +121,18 @@ Example task body:
 
 After sign-in, the interface offers add/edit forms, task list, date/status/priority filters, manual status controls, and a keyboard-accessible delete-confirmation dialog. Mutations show pending/success/error states; list requests support cancellation to prevent stale filter results. An expired session returns the user to sign-in.
 
+## Daily Planner
+
+After sign-in, **Daily Planner** opens by default; the **Tasks** navigation button keeps the Phase 2 page available. The planner defaults to today's browser-local calendar date. Select a date or use Previous, Next, or Today. The optional `?day=YYYY-MM-DD` page URL preserves a valid selected date across refresh and returning from Tasks. Invalid URL dates fall back to today. Date navigation uses calendar arithmetic, including month/year and leap-century boundaries, without UTC or DST conversions.
+
+The planner reuses `GET /api/tasks?date=YYYY-MM-DD` and shows only that date's tasks in Waiting, In Progress, and Completed sections. **Start task** and **Complete** call the existing `PATCH /api/tasks/:id` with only the requested status. The server remains responsible for authentication, ownership, and the one-in-progress-per-day rule; a second active task returns the existing 409 error. Completed records stay in MySQL.
+
+Daily Timeline is a second, read-only view of the same task objects: timed tasks sort by start time and show their original start/end/title/status; untimed tasks appear separately. Rendering never writes to the API, creates records, assigns times, or changes dates. Status sections and Timeline intentionally repeat a task visually without duplicating its database record.
+
+Edit, delete confirmation, and optional Add task reuse the existing Phase 2 form/list/dialog and endpoints. Finish or cancel an open task form before changing the selected day. Requests for an old date are cancelled when the date changes, and the previous day's tasks are hidden while the next day loads. The interface includes empty, loading, retry, action-error, and success states.
+
+Phase 3 adds **no API endpoint, schema migration, table, or dependency**, and leaves existing backend authentication and task validation rules unchanged.
+
 ## Security and deployment
 
 - Password hashing: Node.js crypto scrypt, random 16-byte salts, N=32768/r=8/p=1, 64-byte key; constant-time comparison. Password hashes never appear in API responses.
@@ -147,8 +159,12 @@ server/db/migrations/    Additive tasks schema for fresh/existing installations
 server/scripts/          One-time setup/migration and connection check
 server/test/             Authentication, task validation and real MySQL acceptance tests
 client/src/tasks/        Task form, list, delete dialog and page components
+client/src/planner/      Daily page, date navigation, status sections, timeline and view model
+client/test/             Local-date, leap-boundary and read-only daily-view tests
 .env.example             Non-secret configuration template
 docs/                    Actual Phase 1 verification report
 ```
 
 Phase 1 was checkpointed locally as `4d52415` after its baseline tests and secret review passed. Phase 2 implementation is saved in `d5278ac`; the final review on 6 November 2026 passed authentication/task tests, real MySQL integration tests, and the production build. See `docs/phase-2-report.md` for actual verification. Calendar and Dashboard require a separate instruction.
+
+Phase 3 started from `e2b7486f3bf62c2616545820ef7353a90e3180cc` and passed final review on 6 November 2026. Its approved local checkpoint uses `feat: implement daily planner with task status and timeline`; no push is performed. See `docs/phase-3-report.md` for executed checks and results. No Phase 4 features are included.

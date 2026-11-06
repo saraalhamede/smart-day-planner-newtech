@@ -118,6 +118,30 @@ test('real MySQL Tasks CRUD acceptance', async (t) => {
       await a.get('/api/tasks?priority=low').expect(200).expect(({ body }) => assert.equal(body.tasks.length, 0));
       await a.get('/api/tasks').expect(200).expect(({ body }) => assert.ok(body.tasks.every((task) => task.user_id === ids[0])));
     });
+    await t.test('daily planner date/status flow reuses records, retains times and keeps other dates/users isolated', async () => {
+      const day = '2032-03-08';
+      const first = (await add({ title: 'Daily timed', task_date: day, start_time: '09:00', end_time: '10:00' }).expect(201)).body.task;
+      const second = (await add({ title: 'Daily untimed', task_date: day }).expect(201)).body.task;
+      const done = (await add({ title: 'Daily completed', task_date: day, start_time: '10:00', end_time: '11:00', status: 'completed' }).expect(201)).body.task;
+      await add({ task_date: day }, b).expect(201);
+      await write(a, 'patch', `/api/tasks/${first.id}`, { status: 'in_progress' }).expect(200);
+      await write(a, 'patch', `/api/tasks/${second.id}`, { status: 'in_progress' }).expect(409);
+      await write(a, 'patch', `/api/tasks/${first.id}`, { status: 'completed' }).expect(200);
+      await write(a, 'patch', `/api/tasks/${second.id}`, { status: 'in_progress' }).expect(200);
+      for (let i = 0; i < 2; i++) {
+        const list = (await a.get(`/api/tasks?date=${day}`).expect(200)).body.tasks;
+        assert.deepEqual(new Set(list.map((task) => task.id)), new Set([first.id, second.id, done.id]));
+        assert.ok(list.every((task) => task.task_date === day && task.user_id === ids[0]));
+        assert.equal(list.find((task) => task.id === first.id).status, 'completed');
+        assert.equal(list.find((task) => task.id === first.id).start_time, '09:00');
+        assert.equal(list.find((task) => task.id === first.id).end_time, '10:00');
+        assert.equal(list.find((task) => task.id === second.id).start_time, null);
+      }
+      const [[count]] = await db.pool.execute('SELECT COUNT(*) AS total FROM tasks WHERE user_id = ? AND task_date = ?', [ids[0], day]);
+      assert.equal(count.total, 3);
+      await a.get(`/api/tasks?date=${day}&status=completed`).expect(200).expect(({ body }) => assert.equal(body.tasks.length, 2));
+      await a.get(`/api/tasks?date=${day}&status=in_progress`).expect(200).expect(({ body }) => assert.equal(body.tasks[0].id, second.id));
+    });
     await t.test('other users cannot read, edit or delete tasks; owner override never accepted', async () => {
       await b.get(`/api/tasks/${owned.id}`).expect(404);
       await write(b, 'patch', `/api/tasks/${owned.id}`, { title: 'Stolen', user_id: ids[1] }).expect(404);

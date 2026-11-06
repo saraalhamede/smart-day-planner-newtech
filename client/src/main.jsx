@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import './styles.css';
 import { authApi as api } from './api.js';
 import TasksPage from './tasks/TasksPage.jsx';
+import DailyPlanner from './planner/DailyPlanner.jsx';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -12,6 +13,7 @@ function App() {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [email, setEmail] = useState('');
+  const [workspace, setWorkspace] = useState('planner');
 
   async function restore() {
     setLoading(true); setError('');
@@ -30,7 +32,7 @@ function App() {
         await api('register', fields);
         setEmail(fields.email); setPage('login');
         setNotice('Account created. Sign in to continue.');
-      } else { setUser((await api('login', fields)).user); }
+      } else { setUser((await api('login', fields)).user); setWorkspace('planner'); }
     } catch (failure) { setError(failure.message); }
     finally { setBusy(false); }
   }
@@ -41,10 +43,17 @@ function App() {
     finally { setBusy(false); }
   }
 
+  const WorkspacePage = workspace === 'planner' ? DailyPlanner : TasksPage;
   return (
     <div className="app-shell">
       <header className="site-header"><a className="brand" href="/" aria-label="Smart Day Planner home"><span className="brand-icon" aria-hidden="true">✓</span><span>Smart Day <strong>Planner</strong></span></a><span className="project-tag">NEWTECH · GRADUATION PROJECT</span></header>
-      {user ? <TasksPage user={user} onLogout={logout} signingOut={busy} authError={error} onSessionExpired={() => { setUser(null); setNotice('Your session expired. Please sign in again.'); setPage('login'); }} /> : <main className="auth-layout">
+      {user ? <>
+        <nav className="workspace-nav" aria-label="Planner navigation">
+          <button type="button" aria-current={workspace === 'planner' ? 'page' : undefined} disabled={busy} onClick={() => setWorkspace('planner')}>Daily Planner</button>
+          <button type="button" aria-current={workspace === 'tasks' ? 'page' : undefined} disabled={busy} onClick={() => setWorkspace('tasks')}>Tasks</button>
+        </nav>
+        <WorkspacePage user={user} onLogout={logout} signingOut={busy} authError={error} onSessionExpired={() => { setUser(null); setNotice('Your session expired. Please sign in again.'); setPage('login'); }} />
+      </> : <main className="auth-layout">
         <section className="intro" aria-labelledby="intro-title">
           <p className="eyebrow">A LITTLE SPACE FOR YOUR DAY</p>
           <h1 id="intro-title">A fresh start.<br /><span>A day of your own.</span></h1>

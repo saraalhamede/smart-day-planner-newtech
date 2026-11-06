@@ -4,6 +4,10 @@ import './styles.css';
 import { authApi as api } from './api.js';
 import TasksPage from './tasks/TasksPage.jsx';
 import DailyPlanner from './planner/DailyPlanner.jsx';
+import { selectedDay } from './planner/planner-model.js';
+import { workspaceFromSearch, workspaceUrl } from './navigation.js';
+
+const CalendarPage = React.lazy(() => import('./calendar/CalendarPage.jsx'));
 
 function App() {
   const [user, setUser] = useState(null);
@@ -13,7 +17,8 @@ function App() {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [email, setEmail] = useState('');
-  const [workspace, setWorkspace] = useState('planner');
+  const [workspace, setWorkspace] = useState(() => workspaceFromSearch(window.location.search));
+  const [selectedDate, setSelectedDate] = useState(() => selectedDay(window.location.search));
 
   async function restore() {
     setLoading(true); setError('');
@@ -32,7 +37,7 @@ function App() {
         await api('register', fields);
         setEmail(fields.email); setPage('login');
         setNotice('Account created. Sign in to continue.');
-      } else { setUser((await api('login', fields)).user); setWorkspace('planner'); }
+      } else { setUser((await api('login', fields)).user); }
     } catch (failure) { setError(failure.message); }
     finally { setBusy(false); }
   }
@@ -43,16 +48,27 @@ function App() {
     finally { setBusy(false); }
   }
 
-  const WorkspacePage = workspace === 'planner' ? DailyPlanner : TasksPage;
+  function navigate(view, day = selectedDate) {
+    window.history.replaceState(null, '', workspaceUrl(window.location.href, { view, day }));
+    setSelectedDate(day); setWorkspace(view);
+  }
+  function selectDate(day) {
+    window.history.replaceState(null, '', workspaceUrl(window.location.href, { day }));
+    setSelectedDate(day);
+  }
+  const WorkspacePage = { planner: DailyPlanner, calendar: CalendarPage, tasks: TasksPage }[workspace];
   return (
     <div className="app-shell">
       <header className="site-header"><a className="brand" href="/" aria-label="Smart Day Planner home"><span className="brand-icon" aria-hidden="true">✓</span><span>Smart Day <strong>Planner</strong></span></a><span className="project-tag">NEWTECH · GRADUATION PROJECT</span></header>
       {user ? <>
         <nav className="workspace-nav" aria-label="Planner navigation">
-          <button type="button" aria-current={workspace === 'planner' ? 'page' : undefined} disabled={busy} onClick={() => setWorkspace('planner')}>Daily Planner</button>
-          <button type="button" aria-current={workspace === 'tasks' ? 'page' : undefined} disabled={busy} onClick={() => setWorkspace('tasks')}>Tasks</button>
+          <button type="button" aria-current={workspace === 'planner' ? 'page' : undefined} disabled={busy} onClick={() => navigate('planner')}>Daily Planner</button>
+          <button type="button" aria-current={workspace === 'calendar' ? 'page' : undefined} disabled={busy} onClick={() => navigate('calendar')}>Calendar</button>
+          <button type="button" aria-current={workspace === 'tasks' ? 'page' : undefined} disabled={busy} onClick={() => navigate('tasks')}>Tasks</button>
         </nav>
-        <WorkspacePage user={user} onLogout={logout} signingOut={busy} authError={error} onSessionExpired={() => { setUser(null); setNotice('Your session expired. Please sign in again.'); setPage('login'); }} />
+        <React.Suspense fallback={<main className="empty-state" role="status">Loading page…</main>}>
+          <WorkspacePage user={user} date={selectedDate} onDateChange={selectDate} onOpenDaily={(day) => navigate('planner', day)} onLogout={logout} signingOut={busy} authError={error} onSessionExpired={() => { setUser(null); setNotice('Your session expired. Please sign in again.'); setPage('login'); }} />
+        </React.Suspense>
       </> : <main className="auth-layout">
         <section className="intro" aria-labelledby="intro-title">
           <p className="eyebrow">A LITTLE SPACE FOR YOUR DAY</p>

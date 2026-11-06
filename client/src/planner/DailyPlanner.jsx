@@ -3,15 +3,14 @@ import { request } from '../api.js';
 import TaskForm from '../tasks/TaskForm.jsx';
 import DeleteTaskDialog from '../tasks/DeleteTaskDialog.jsx';
 import useDailyTasks from './useDailyTasks.js';
-import { dailyView, selectedDay } from './planner-model.js';
+import { dailyView } from './planner-model.js';
 import DateNavigation from './DateNavigation.jsx';
 import DailySections from './DailySections.jsx';
 import DailyTimeline from './DailyTimeline.jsx';
 import '../tasks/tasks.css';
 import './planner.css';
 
-export default function DailyPlanner({ user, onLogout, signingOut, authError, onSessionExpired }) {
-  const [date, setDate] = useState(() => selectedDay(window.location.search));
+export default function DailyPlanner({ user, date, onDateChange, onLogout, signingOut, authError, onSessionExpired }) {
   const { tasks, loading, loadError, refresh } = useDailyTasks(date, onSessionExpired);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -23,10 +22,7 @@ export default function DailyPlanner({ user, onLogout, signingOut, authError, on
   const locked = busy || signingOut;
 
   function changeDate(next) {
-    const url = new URL(window.location.href);
-    url.searchParams.set('day', next);
-    window.history.replaceState(null, '', url);
-    setDate(next); setError(''); setNotice('');
+    onDateChange(next); setError(''); setNotice('');
   }
   function closeForm() { setForm(null); setError(''); }
   function openForm(task = null) { setForm({ task }); setError(''); setNotice(''); }

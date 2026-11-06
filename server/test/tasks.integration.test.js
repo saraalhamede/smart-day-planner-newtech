@@ -8,6 +8,7 @@ import request from 'supertest';
 import { createApp } from '../src/app.js';
 import { readConfig } from '../src/config.js';
 import { connectDatabase } from '../src/database.js';
+import { indexTasksForMonth } from '../../client/src/calendar/calendar-model.js';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 
@@ -141,6 +142,26 @@ test('real MySQL Tasks CRUD acceptance', async (t) => {
       assert.equal(count.total, 3);
       await a.get(`/api/tasks?date=${day}&status=completed`).expect(200).expect(({ body }) => assert.equal(body.tasks.length, 2));
       await a.get(`/api/tasks?date=${day}&status=in_progress`).expect(200).expect(({ body }) => assert.equal(body.tasks[0].id, second.id));
+    });
+    await t.test('read-only Calendar counts match MySQL, isolate ownership, and leave task records unchanged', async () => {
+      await add({ task_date: '2036-02-29', title: 'Calendar one' }).expect(201);
+      await add({ task_date: '2036-02-29', title: 'Calendar two', status: 'completed' }).expect(201);
+      await add({ task_date: '2036-02-28', title: 'Calendar earlier day' }).expect(201);
+      await add({ task_date: '2036-03-01', title: 'Calendar other month' }).expect(201);
+      await add({ task_date: '2036-02-29', title: 'Other owner' }, b).expect(201);
+      const before = (await a.get('/api/tasks').expect(200)).body.tasks;
+      const indexed = indexTasksForMonth(before, '2036-02');
+      assert.equal(indexed.get('2036-02-29').length, 2);
+      assert.equal(indexed.get('2036-02-28').length, 1);
+      assert.equal(indexed.has('2036-03-01'), false);
+      const [counts] = await db.pool.execute("SELECT DATE_FORMAT(task_date, '%Y-%m-%d') AS day, COUNT(*) AS total FROM tasks WHERE user_id = ? AND task_date >= '2036-02-01' AND task_date < '2036-03-01' GROUP BY task_date", [ids[0]]);
+      for (const row of counts) assert.equal(indexed.get(row.day).length, row.total);
+      for (let i = 0; i < 3; i++) {
+        const after = (await a.get('/api/tasks').expect(200)).body.tasks;
+        indexTasksForMonth(after, '2036-02');
+        assert.deepEqual(after, before);
+        assert.ok(after.every((task) => task.user_id === ids[0]));
+      }
     });
     await t.test('other users cannot read, edit or delete tasks; owner override never accepted', async () => {
       await b.get(`/api/tasks/${owned.id}`).expect(404);

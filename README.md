@@ -1,8 +1,8 @@
 # Smart Day Planner — NewTech
 
-Independent NewTech Full Stack Graduation Project. **Phase 3: authentication, task management, and Daily Planner.**
+Independent NewTech Full Stack Graduation Project. **Phase 4: authentication, task management, Daily Planner, and Monthly Calendar.**
 
-React + Vite client, Express API, MySQL users, persistent server sessions, user-owned task CRUD, and a date-based Daily Planner. All interface text is English. Registration creates an account; sign-in is a separate step. No Calendar, Dashboard, AI, check-in, mood, or automatic scheduling features are included.
+React + Vite client, Express API, MySQL users, persistent server sessions, user-owned task CRUD, a date-based Daily Planner, and a read-only Monthly Calendar. All interface text is English. Registration creates an account; sign-in is a separate step. No Dashboard, notifications, AI, check-in, mood, or automatic scheduling features are included.
 
 ## Reference and independence
 
@@ -59,7 +59,7 @@ If Vite already runs for this project on port 5173, reuse it and run `npm start`
 | `npm run db:init` | Create only the new schema and its three tables, once |
 | `npm run db:migrate` | Add tasks to an existing Phase 1 schema, once; no reset |
 | `npm run db:check` | Verify real MySQL connection, table shape and session store readiness |
-| `npm test` | Server authentication/validation regression plus client calendar-date and daily-view model tests |
+| `npm test` | Server regression plus client daily/monthly date, view-model, keyboard-navigation and URL-state tests |
 | `npm run test:integration` | Real MySQL authentication, task CRUD, ownership, conflicts, concurrency, and actual backend restart tests; cleans up only generated QA records |
 | `npm run build` | Production frontend build |
 | `npm start` | Start API; in production also serve built frontend |
@@ -67,7 +67,7 @@ If Vite already runs for this project on port 5173, reuse it and run `npm start`
 
 Tests open temporary loopback HTTP ports. Restricted environments may require permission to connect to localhost. Integration tests require configured `.env`, an initialized database, and development mode. They fail instead of silently skipping when those are unavailable.
 
-The repository has no configured lint command or React component test runner. Client model tests use Node's built-in test runner (`npm run test -w client`); frontend verification also uses the production build and browser QA. No additional dependencies were introduced for Phases 2 or 3.
+The repository has no configured lint command or React component test runner. Client model tests use Node's built-in test runner (`npm run test -w client`); frontend verification also uses the production build and browser QA. No additional dependencies were introduced for Phases 2, 3 or 4.
 
 ## API
 
@@ -123,7 +123,7 @@ After sign-in, the interface offers add/edit forms, task list, date/status/prior
 
 ## Daily Planner
 
-After sign-in, **Daily Planner** opens by default; the **Tasks** navigation button keeps the Phase 2 page available. The planner defaults to today's browser-local calendar date. Select a date or use Previous, Next, or Today. The optional `?day=YYYY-MM-DD` page URL preserves a valid selected date across refresh and returning from Tasks. Invalid URL dates fall back to today. Date navigation uses calendar arithmetic, including month/year and leap-century boundaries, without UTC or DST conversions.
+After sign-in, **Daily Planner** opens by default unless a valid `view` is requested in the page URL; **Tasks** keeps the Phase 2 page available. The planner defaults to today's browser-local calendar date. Select a date or use Previous, Next, or Today. The optional `?day=YYYY-MM-DD` page URL preserves a valid selected date across refresh and navigation. Invalid URL dates fall back to today. Date navigation uses calendar arithmetic, including month/year and leap-century boundaries, without UTC or DST conversions.
 
 The planner reuses `GET /api/tasks?date=YYYY-MM-DD` and shows only that date's tasks in Waiting, In Progress, and Completed sections. **Start task** and **Complete** call the existing `PATCH /api/tasks/:id` with only the requested status. The server remains responsible for authentication, ownership, and the one-in-progress-per-day rule; a second active task returns the existing 409 error. Completed records stay in MySQL.
 
@@ -132,6 +132,18 @@ Daily Timeline is a second, read-only view of the same task objects: timed tasks
 Edit, delete confirmation, and optional Add task reuse the existing Phase 2 form/list/dialog and endpoints. Finish or cancel an open task form before changing the selected day. Requests for an old date are cancelled when the date changes, and the previous day's tasks are hidden while the next day loads. The interface includes empty, loading, retry, action-error, and success states.
 
 Phase 3 adds **no API endpoint, schema migration, table, or dependency**, and leaves existing backend authentication and task validation rules unchanged.
+
+## Monthly Calendar
+
+The **Calendar** navigation button opens a read-only monthly view. Without an explicit selected date, it starts in the current browser-local month. A date already selected in Daily Planner or the `day` URL parameter takes precedence, so both views stay on the same date. The shared state now lives in the application shell; the existing Daily Planner date controls and API behavior are preserved.
+
+- Weekdays run **Monday–Sunday**. Gregorian arithmetic builds only real dates, with blank cells around the month. Previous/Next handle December/January and leap years within the existing 1000–9999 date range. A month input allows direct navigation; changing the month selects its first day. **This month** selects today's local date.
+- The existing authenticated `GET /api/tasks` loads only the session owner's task list. Because the API supports exact-date filters rather than a month range, Calendar filters the list by `task_date` on the client, as intended for this small MVP. There is no new endpoint or table.
+- Dates with tasks show a count across all statuses. Clicking a date selects it and updates its read-only summary; **Open Daily Planner** opens that same date for task management. Calendar contains no task create/edit/delete/status controls.
+- `?view=calendar&day=YYYY-MM-DD` restores the selected view and date after refresh or sign-in. `view=planner` and `view=tasks` restore the existing pages. Invalid view names fall back to Daily Planner. No routing library is used.
+- The selected date is the grid's Tab entry point. Arrow keys move by day/week, Home/End select the first/last day of the month, and Enter/Space use native button activation. Focus follows keyboard navigation across months. The selected day and today have distinct indicators.
+- Calendar uses loading, empty-day/month and retry states. **Refresh Calendar** reloads data; returning from Daily Planner also fetches current records. Display never changes dates, times, status, priority, or database records. There is no realtime refresh or scheduling.
+- Calendar is loaded on demand with React.lazy/Suspense, keeping it out of the initial page bundle without adding dependencies.
 
 ## Security and deployment
 
@@ -160,11 +172,15 @@ server/scripts/          One-time setup/migration and connection check
 server/test/             Authentication, task validation and real MySQL acceptance tests
 client/src/tasks/        Task form, list, delete dialog and page components
 client/src/planner/      Daily page, date navigation, status sections, timeline and view model
-client/test/             Local-date, leap-boundary and read-only daily-view tests
+client/src/calendar/     Monthly grid, read-only day summary, data hook and calendar model
+client/src/navigation.js Shared view/date URL state without a routing dependency
+client/test/             Daily/monthly dates, read-only data, keyboard and navigation tests
 .env.example             Non-secret configuration template
 docs/                    Actual Phase 1 verification report
 ```
 
-Phase 1 was checkpointed locally as `4d52415` after its baseline tests and secret review passed. Phase 2 implementation is saved in `d5278ac`; the final review on 6 November 2026 passed authentication/task tests, real MySQL integration tests, and the production build. See `docs/phase-2-report.md` for actual verification. Calendar and Dashboard require a separate instruction.
+Phase 1 was checkpointed locally as `4d52415` after its baseline tests and secret review passed. Phase 2 implementation is saved in `d5278ac`; the final review on 6 November 2026 passed authentication/task tests, real MySQL integration tests, and the production build. See `docs/phase-2-report.md` for actual verification.
 
-Phase 3 started from `e2b7486f3bf62c2616545820ef7353a90e3180cc` and passed final review on 6 November 2026. Its approved local checkpoint uses `feat: implement daily planner with task status and timeline`; no push is performed. See `docs/phase-3-report.md` for executed checks and results. No Phase 4 features are included.
+Phase 3 started from `e2b7486f3bf62c2616545820ef7353a90e3180cc` and passed final review on 6 November 2026. Its approved local checkpoint is `5b700e4` (`feat: implement daily planner with task status and timeline`). See `docs/phase-3-report.md` for executed checks and results.
+
+Phase 4 started from `5b700e474556e9390f175163b45ae3a42f1324fd` and passed final review on 6 November 2026. Its approved local checkpoint uses `feat: implement monthly calendar with daily planner navigation`; no push is performed. See `docs/phase-4-report.md` for actual results and limitations. Dashboard requires a separate instruction and is not implemented.

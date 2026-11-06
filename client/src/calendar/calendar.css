@@ -1,0 +1,40 @@
+.calendar-page { flex: 1; padding: 34px 0 60px; }
+.calendar-toolbar { display: flex; align-items: end; justify-content: space-between; flex-wrap: wrap; gap: 14px; padding: 18px 22px; background: #edf0e5; border: 1px solid #dfe5d5; border-radius: 12px; }
+.calendar-month-controls { display: flex; align-items: end; gap: 14px; }
+.calendar-month-controls label { margin: 0; font-size: 10px; }
+.calendar-month-controls input { margin-top: 6px; padding: 10px 12px; min-height: 39px; }
+.calendar-month-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 28px 0 18px; }
+.calendar-month-heading h2 { margin: 0; font-size: 23px; }
+.calendar-month-heading p { color: #7a8573; font-size: 10px; margin: 0; }
+.calendar-legend-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #91a575; margin-right: 5px; }
+.calendar-layout { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(245px, 1fr); gap: 26px; align-items: start; }
+.calendar-board { min-width: 0; }
+.month-grid { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; border: 1px solid #dce3d3; background: #fffefa; border-radius: 10px; overflow: hidden; }
+.month-grid th { padding: 15px 0; font-size: 10px; color: #7b8871; font-weight: 500; background: #f0f2e9; }
+.month-grid td { padding: 0; border-top: 1px solid #e6eadf; border-right: 1px solid #e6eadf; vertical-align: top; }
+.month-grid td:last-child { border-right: 0; }
+.calendar-blank { background: #f5f6ef; }
+.calendar-day { display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 13px; width: 100%; min-height: 85px; padding: 12px 3px 10px; border: 0; color: #385b46; background: transparent; }
+.calendar-day:hover { background: #f0f3e8; }
+.calendar-day.is-selected { background: #244d3f; color: #fffefa; }
+.calendar-day.is-selected:hover { background: #244d3f; }
+.calendar-day:focus-visible { outline: 3px solid #c59b59; outline-offset: -3px; }
+.calendar-day-number { display: grid; place-items: center; font-size: 13px; line-height: 1; min-width: 23px; height: 23px; }
+.is-today .calendar-day-number { border: 1px solid currentColor; border-radius: 50%; }
+.day-task-count { font-size: 9px; line-height: 1.3; background: #e5ecda; color: #5a7146; border-radius: 4px; padding: 3px 5px; white-space: nowrap; }
+.is-selected .day-task-count { background: #416554; color: #fffefa; }
+.calendar-key-hint { font-size: 10px; line-height: 1.8; color: #88927e; margin: 14px 0 0; }
+.calendar-summary { background: #fffefa; border: 1px solid #e0e5d9; border-radius: 12px; padding: 25px; min-width: 0; }
+.calendar-summary > .eyebrow { font-size: 8px; color: #7a8b6f; margin-top: 0; }
+.calendar-summary h2 { font-size: 23px; }
+.selected-day-date { font-size: 14px; color: #365c49; margin: 18px 0 8px; }
+.calendar-summary .muted { font-size: 12px; margin-bottom: 20px; }
+.calendar-summary-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+.calendar-summary-list li { border-bottom: 1px solid #edf0e5; padding-bottom: 14px; }
+.calendar-summary-list h3 { font-size: 13px; line-height: 1.6; font-weight: 500; overflow-wrap: anywhere; margin: 0 0 6px; }
+.calendar-summary-list p { margin: 0; font-size: 10px; color: #849079; line-height: 1.8; }
+.calendar-summary .primary { font-size: 12px; }
+.calendar-readonly { text-align: center; font-size: 10px; color: #87927d; margin: 15px 0 0; }
+.calendar-month-empty { font-size: 12px; color: #7d8b72; margin: 0 0 20px; }
+@media(max-width: 900px) { .calendar-layout { grid-template-columns: minmax(0, 1fr); } .calendar-summary { max-width: none; } }
+@media(max-width: 640px) { .calendar-page { padding: 28px 0 40px; } .calendar-toolbar { padding: 16px; gap: 8px; } .calendar-month-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; } .calendar-month-controls label { grid-column: 1 / -1; grid-row: 1; } .calendar-month-controls .quiet { grid-column: 1 / -1; } .calendar-month-heading { align-items: start; flex-direction: column; gap: 10px; margin: 24px 0 16px; } .calendar-day { min-height: 63px; padding: 8px 2px; gap: 6px; } .calendar-day-number { font-size: 12px; } .day-task-count { font-size: 9px; padding: 2px 5px; } .task-count-word { display: none; } .month-grid th { font-size: 9px; padding: 12px 0; } .calendar-summary { padding: 24px; } .workspace-nav { gap: 22px; } }

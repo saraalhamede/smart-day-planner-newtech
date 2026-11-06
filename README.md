@@ -1,8 +1,8 @@
 # Smart Day Planner — NewTech
 
-Independent NewTech Full Stack Graduation Project. **Phase 4: authentication, task management, Daily Planner, and Monthly Calendar.**
+Independent NewTech Full Stack Graduation Project. **Phase 5: authentication, task management, Daily Planner, Monthly Calendar, and Basic Dashboard.**
 
-React + Vite client, Express API, MySQL users, persistent server sessions, user-owned task CRUD, a date-based Daily Planner, and a read-only Monthly Calendar. All interface text is English. Registration creates an account; sign-in is a separate step. No Dashboard, notifications, AI, check-in, mood, or automatic scheduling features are included.
+React + Vite client, Express API, MySQL users, persistent server sessions, user-owned task CRUD, a date-based Daily Planner, a read-only Monthly Calendar, and a read-only Basic Dashboard. All interface text is English. Registration creates an account; sign-in is a separate step. No notifications, AI, check-in, mood, or automatic scheduling features are included.
 
 ## Reference and independence
 
@@ -59,7 +59,7 @@ If Vite already runs for this project on port 5173, reuse it and run `npm start`
 | `npm run db:init` | Create only the new schema and its three tables, once |
 | `npm run db:migrate` | Add tasks to an existing Phase 1 schema, once; no reset |
 | `npm run db:check` | Verify real MySQL connection, table shape and session store readiness |
-| `npm test` | Server regression plus client daily/monthly date, view-model, keyboard-navigation and URL-state tests |
+| `npm test` / `npm run test` | Server regression plus client daily/monthly date, Dashboard statistics, keyboard-navigation and URL-state tests |
 | `npm run test:integration` | Real MySQL authentication, task CRUD, ownership, conflicts, concurrency, and actual backend restart tests; cleans up only generated QA records |
 | `npm run build` | Production frontend build |
 | `npm start` | Start API; in production also serve built frontend |
@@ -67,7 +67,7 @@ If Vite already runs for this project on port 5173, reuse it and run `npm start`
 
 Tests open temporary loopback HTTP ports. Restricted environments may require permission to connect to localhost. Integration tests require configured `.env`, an initialized database, and development mode. They fail instead of silently skipping when those are unavailable.
 
-The repository has no configured lint command or React component test runner. Client model tests use Node's built-in test runner (`npm run test -w client`); frontend verification also uses the production build and browser QA. No additional dependencies were introduced for Phases 2, 3 or 4.
+The repository has no configured lint command or React component test runner. Client model tests use Node's built-in test runner (`npm run test -w client`); frontend verification also uses the production build and browser QA. No additional dependencies were introduced for Phases 2–5.
 
 ## API
 
@@ -145,6 +145,12 @@ The **Calendar** navigation button opens a read-only monthly view. Without an ex
 - Calendar uses loading, empty-day/month and retry states. **Refresh Calendar** reloads data; returning from Daily Planner also fetches current records. Display never changes dates, times, status, priority, or database records. There is no realtime refresh or scheduling.
 - Calendar is loaded on demand with React.lazy/Suspense, keeping it out of the initial page bundle without adding dependencies.
 
+## Basic Dashboard
+
+**Dashboard** shows **All Tasks** for the signed-in user across all dates. Four read-only cards display Total Tasks, Completed Tasks, In Progress Tasks, and Waiting Tasks. Total equals the sum of those three statuses; completed tasks remain included. Completion Rate is `(Completed / Total) × 100`, rounded to one decimal place, with `0.0%` for an empty account. A labelled native progress bar shows the same percentage.
+
+Opening Dashboard or using **Refresh Dashboard** fetches the existing authenticated `GET /api/tasks`. Statistics are derived from returned statuses only, without mock data, localStorage, writes, new endpoints, or schema changes. Returning after task completion/deletion fetches current records. Loading, empty, error/retry and expired-session states are included. The `view=dashboard` URL restores the view after reload/sign-in and preserves the selected planner date. Dashboard is loaded on demand without a new dependency.
+
 ## Security and deployment
 
 - Password hashing: Node.js crypto scrypt, random 16-byte salts, N=32768/r=8/p=1, 64-byte key; constant-time comparison. Password hashes never appear in API responses.
@@ -173,6 +179,7 @@ server/test/             Authentication, task validation and real MySQL acceptan
 client/src/tasks/        Task form, list, delete dialog and page components
 client/src/planner/      Daily page, date navigation, status sections, timeline and view model
 client/src/calendar/     Monthly grid, read-only day summary, data hook and calendar model
+client/src/dashboard/    Read-only all-task statistics, progress indicator and data hook
 client/src/navigation.js Shared view/date URL state without a routing dependency
 client/test/             Daily/monthly dates, read-only data, keyboard and navigation tests
 .env.example             Non-secret configuration template
@@ -183,4 +190,6 @@ Phase 1 was checkpointed locally as `4d52415` after its baseline tests and secre
 
 Phase 3 started from `e2b7486f3bf62c2616545820ef7353a90e3180cc` and passed final review on 6 November 2026. Its approved local checkpoint is `5b700e4` (`feat: implement daily planner with task status and timeline`). See `docs/phase-3-report.md` for executed checks and results.
 
-Phase 4 started from `5b700e474556e9390f175163b45ae3a42f1324fd` and passed final review on 6 November 2026. Its approved local checkpoint uses `feat: implement monthly calendar with daily planner navigation`; no push is performed. See `docs/phase-4-report.md` for actual results and limitations. Dashboard requires a separate instruction and is not implemented.
+Phase 4 started from `5b700e474556e9390f175163b45ae3a42f1324fd` and passed final review on 6 November 2026. Its local checkpoint is `da0d615` (`feat: implement monthly calendar with daily planner navigation`); no push was performed. See `docs/phase-4-report.md` for actual results and limitations.
+
+Phase 5 started from `da0d6153b6c99724ac6ba0fdb59686f958594a3b` and passed final review on 6 November 2026. Its approved local checkpoint uses `feat: implement basic dashboard with task statistics`; no push is performed. See `docs/phase-5-report.md` for verification and remaining risks. Final QA and presentation preparation require separate instructions and have not begun.

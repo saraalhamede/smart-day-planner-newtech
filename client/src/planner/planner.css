@@ -1,4 +1,4 @@
-.workspace-nav { display: flex; gap: 26px; border-bottom: 1px solid #dce0d6; padding-top: 20px; }
+.workspace-nav { display: flex; flex-wrap: wrap; gap: 26px; border-bottom: 1px solid #dce0d6; padding-top: 20px; }
 .workspace-nav button { font: inherit; font-size: 12px; font-weight: 600; color: #7a8573; padding: 0 0 15px; background: none; border: 0; border-bottom: 2px solid transparent; }
 .workspace-nav button[aria-current='page'] { color: #183e35; border-bottom-color: #183e35; }
 .daily-planner { flex: 1; padding: 34px 0 60px; }

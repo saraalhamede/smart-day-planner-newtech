@@ -9,6 +9,7 @@ import { createApp } from '../src/app.js';
 import { readConfig } from '../src/config.js';
 import { connectDatabase } from '../src/database.js';
 import { indexTasksForMonth } from '../../client/src/calendar/calendar-model.js';
+import { taskStatistics } from '../../client/src/dashboard/dashboard-model.js';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 
@@ -162,6 +163,33 @@ test('real MySQL Tasks CRUD acceptance', async (t) => {
         assert.deepEqual(after, before);
         assert.ok(after.every((task) => task.user_id === ids[0]));
       }
+    });
+    await t.test('Dashboard matches MySQL across dates, refreshes after completion/deletion, remains read-only and isolates owners', async () => {
+      await request(app).get('/api/tasks').expect(401);
+      const statisticsFor = async (agent, owner) => {
+        const tasks = (await agent.get('/api/tasks').expect(200)).body.tasks;
+        assert.ok(tasks.every(task => task.user_id === owner));
+        const stats = taskStatistics(tasks);
+        const [rows] = await db.pool.execute('SELECT status, COUNT(*) AS total FROM tasks WHERE user_id = ? GROUP BY status', [owner]);
+        for (const status of ['waiting', 'in_progress', 'completed']) assert.equal(stats[status], rows.find(row => row.status === status)?.total || 0);
+        assert.equal(stats.total, tasks.length);
+        assert.equal(stats.total, stats.waiting + stats.in_progress + stats.completed);
+        return { tasks, stats };
+      };
+      const original = await statisticsFor(a, ids[0]);
+      const other = await statisticsFor(b, ids[1]);
+      assert.ok(original.tasks.every(task => !other.tasks.some(item => item.id === task.id)));
+      const fresh = (await add({ title: 'Dashboard update', task_date: '2040-01-01' }).expect(201)).body.task;
+      const added = await statisticsFor(a, ids[0]);
+      assert.equal(added.stats.total, original.stats.total + 1);
+      await write(a, 'patch', `/api/tasks/${fresh.id}`, { status: 'completed' }).expect(200);
+      const completed = await statisticsFor(a, ids[0]);
+      assert.equal(completed.stats.completed, original.stats.completed + 1);
+      assert.equal(completed.stats.completionRate, Math.round((completed.stats.completed / completed.stats.total) * 1000) / 10);
+      for (let i = 0; i < 3; i++) assert.deepEqual(await statisticsFor(a, ids[0]), completed);
+      await write(a, 'delete', `/api/tasks/${fresh.id}`).expect(204);
+      assert.deepEqual(await statisticsFor(a, ids[0]), original);
+      assert.deepEqual(await statisticsFor(b, ids[1]), other);
     });
     await t.test('other users cannot read, edit or delete tasks; owner override never accepted', async () => {
       await b.get(`/api/tasks/${owned.id}`).expect(404);

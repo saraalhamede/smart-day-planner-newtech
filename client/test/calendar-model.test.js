@@ -93,7 +93,7 @@ test('Calendar and Daily Planner share the selected date and restore the request
     assert.equal(workspaceFromSearch(search), view);
     assert.equal(selectedDay(search), '2028-02-29');
   }
-  assert.equal(workspaceFromSearch('?view=dashboard'), 'planner');
+  assert.equal(workspaceFromSearch('?view=unknown'), 'planner');
   assert.equal(workspaceFromSearch(''), 'planner');
   assert.throws(() => workspaceUrl('http://127.0.0.1:5173/', { day: '2027-02-29' }));
 });

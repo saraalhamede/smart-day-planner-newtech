@@ -8,6 +8,7 @@ import { selectedDay } from './planner/planner-model.js';
 import { workspaceFromSearch, workspaceUrl } from './navigation.js';
 
 const CalendarPage = React.lazy(() => import('./calendar/CalendarPage.jsx'));
+const DashboardPage = React.lazy(() => import('./dashboard/DashboardPage.jsx'));
 
 function App() {
   const [user, setUser] = useState(null);
@@ -56,7 +57,7 @@ function App() {
     window.history.replaceState(null, '', workspaceUrl(window.location.href, { day }));
     setSelectedDate(day);
   }
-  const WorkspacePage = { planner: DailyPlanner, calendar: CalendarPage, tasks: TasksPage }[workspace];
+  const WorkspacePage = { planner: DailyPlanner, calendar: CalendarPage, tasks: TasksPage, dashboard: DashboardPage }[workspace];
   return (
     <div className="app-shell">
       <header className="site-header"><a className="brand" href="/" aria-label="Smart Day Planner home"><span className="brand-icon" aria-hidden="true">✓</span><span>Smart Day <strong>Planner</strong></span></a><span className="project-tag">NEWTECH · GRADUATION PROJECT</span></header>
@@ -65,6 +66,7 @@ function App() {
           <button type="button" aria-current={workspace === 'planner' ? 'page' : undefined} disabled={busy} onClick={() => navigate('planner')}>Daily Planner</button>
           <button type="button" aria-current={workspace === 'calendar' ? 'page' : undefined} disabled={busy} onClick={() => navigate('calendar')}>Calendar</button>
           <button type="button" aria-current={workspace === 'tasks' ? 'page' : undefined} disabled={busy} onClick={() => navigate('tasks')}>Tasks</button>
+          <button type="button" aria-current={workspace === 'dashboard' ? 'page' : undefined} disabled={busy} onClick={() => navigate('dashboard')}>Dashboard</button>
         </nav>
         <React.Suspense fallback={<main className="empty-state" role="status">Loading page…</main>}>
           <WorkspacePage user={user} date={selectedDate} onDateChange={selectDate} onOpenDaily={(day) => navigate('planner', day)} onLogout={logout} signingOut={busy} authError={error} onSessionExpired={() => { setUser(null); setNotice('Your session expired. Please sign in again.'); setPage('login'); }} />

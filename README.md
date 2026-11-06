@@ -183,7 +183,7 @@ client/src/dashboard/    Read-only all-task statistics, progress indicator and d
 client/src/navigation.js Shared view/date URL state without a routing dependency
 client/test/             Daily/monthly dates, read-only data, keyboard and navigation tests
 .env.example             Non-secret configuration template
-docs/                    Actual Phase 1 verification report
+docs/                    Phase reports, QA findings and local demo verification
 ```
 
 Phase 1 was checkpointed locally as `4d52415` after its baseline tests and secret review passed. Phase 2 implementation is saved in `d5278ac`; the final review on 6 November 2026 passed authentication/task tests, real MySQL integration tests, and the production build. See `docs/phase-2-report.md` for actual verification.
@@ -192,4 +192,16 @@ Phase 3 started from `e2b7486f3bf62c2616545820ef7353a90e3180cc` and passed final
 
 Phase 4 started from `5b700e474556e9390f175163b45ae3a42f1324fd` and passed final review on 6 November 2026. Its local checkpoint is `da0d615` (`feat: implement monthly calendar with daily planner navigation`); no push was performed. See `docs/phase-4-report.md` for actual results and limitations.
 
-Phase 5 started from `da0d6153b6c99724ac6ba0fdb59686f958594a3b` and passed final review on 6 November 2026. Its approved local checkpoint uses `feat: implement basic dashboard with task statistics`; no push is performed. See `docs/phase-5-report.md` for verification and remaining risks. Final QA and presentation preparation require separate instructions and have not begun.
+Phase 5 started from `da0d6153b6c99724ac6ba0fdb59686f958594a3b` and passed final review on 6 November 2026. Its local checkpoint is `b3301495d484d4e78bcd547ac006116387e3b8ec` (`feat: implement basic dashboard with task statistics`). See `docs/phase-5-report.md` for verification and remaining risks.
+
+## Current QA and local demonstration status
+
+Read [Phase 6A QA](docs/phase-6a-qa-report.md), [FK investigation](docs/phase-6b1-fk-investigation.md), [unapplied workaround plan](docs/phase-6b2-safe-fix-preparation.md), and the later [QA cleanup and local demo verification](docs/qa-cleanup-local-demo-report.md). Historical reports describe the records and permissions at their own execution time.
+
+The local MySQL 26.7.0 server accepted two diagnostic tasks with nonexistent owners despite an existing foreign key and enabled checks. The evidence strongly matches MySQL Bug #121438; the workaround has **not** been applied or verified. Cleaning the diagnostic records does **not** fix enforcement. API authentication, ownership checks, and task validation passed regression, but full database integrity and final delivery readiness remain unapproved. The known low-severity focus-restoration issue after cancelling the delete dialog also remains unresolved.
+
+With explicit approval, the three historical QA accounts, twelve QA tasks (including the two diagnostic orphans), and their two remaining sessions were removed after a protected, encrypted local backup. Original user/task fingerprints and table definitions were unchanged. A separate browser test account was also backed up and cleaned after verification. Backups, credentials, screenshots, and temporary scripts stay ignored under `.local/` or `.env`; backups are encrypted for the current Windows user and are not portable to a new profile without a separate recovery plan. Decryption/hash checks passed; a database restore was not performed.
+
+The latest local run passed 11 server tests, 21 client tests, 18 MySQL integration results, and the production build. Integration cleanup was reviewed and confined to newly generated QA accounts. Browser checks covered registration/login/logout, CRUD, Daily Planner, Calendar, Dashboard, refresh/persistence, and desktop/mobile layouts. See the report for the initial sandbox EACCES failure and exact verification limits.
+
+For a local demonstration, use the existing documented `npm run dev` command and open `http://127.0.0.1:5173`. Keep MySQL running and use a dedicated demonstration account. Functional demo readiness is **CONDITIONAL**, with the unresolved FK finding disclosed; this is not a production or final-integrity sign-off. MySQL configuration, application source, schema, API contracts, and dependencies were not changed. No presentation preparation or push was performed.

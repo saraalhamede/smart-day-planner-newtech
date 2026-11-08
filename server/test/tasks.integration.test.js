@@ -246,12 +246,8 @@ test('real MySQL Tasks CRUD acceptance', async (t) => {
       await b.get('/api/tasks').expect(200).expect(({ body }) => assert.ok(body.tasks.length > 0));
     });
   } finally {
-    if (ids.length) {
-      const placeholders = ids.map(() => '?').join(',');
-      await db.pool.execute(`DELETE FROM tasks WHERE user_id IN (${placeholders})`, ids);
-      await db.pool.execute(`DELETE FROM sessions WHERE JSON_EXTRACT(data, '$.userId') IN (${placeholders})`, ids);
-      for (const email of emails) await db.pool.execute('DELETE FROM users WHERE email = ?', [email]);
-    }
+    // Retain generated accounts/tasks; CRUD/Dashboard delete only their own newly created test tasks above.
+    console.log(JSON.stringify({ retainedTasksQaUserIds: ids }));
     await db.close();
   }
 });

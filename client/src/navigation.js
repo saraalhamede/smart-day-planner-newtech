@@ -1,6 +1,6 @@
 import { isPlannerDate } from './planner/planner-model.js';
 
-const views = ['planner', 'calendar', 'tasks', 'dashboard'];
+const views = ['planner', 'calendar', 'tasks', 'dashboard', 'settings'];
 export function workspaceFromSearch(search) {
   const value = new URLSearchParams(search).get('view');
   return views.includes(value) ? value : 'planner';

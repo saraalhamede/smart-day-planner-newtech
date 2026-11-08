@@ -15,6 +15,7 @@ export async function request(path, { method = 'GET', body, signal } = {}) {
   if (!response.ok) {
     const error = new Error(data.error || 'The server is unavailable. Please try again.');
     error.status = response.status;
+    error.code = data.code;
     throw error;
   }
   return data;

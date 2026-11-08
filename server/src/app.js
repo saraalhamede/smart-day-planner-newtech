@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { hashPassword, verifyPassword } from './passwords.js';
 import { requireAuth } from './middleware/require-auth.js';
 import { taskRoutes } from './tasks/routes.js';
+import { accountRoutes } from './account/routes.js';
 
 const publicUser = ({ id, name, email }) => ({ id, name, email });
 const sessionAction = (req, method) => new Promise((resolve, reject) => req.session[method]((error) => error ? reject(error) : resolve()));
@@ -73,6 +74,7 @@ export function createApp({ config, users, store, tasks }) {
     res.status(204).end();
   });
   app.use('/api/tasks', taskRoutes(authenticate, tasks));
+  app.use('/api/account', accountRoutes(authenticate, users, { cookieName, cookieOptions }));
   app.use('/api', (req, res) => res.status(404).json({ error: 'API route not found.' }));
   if (config.production) {
     const clientDist = fileURLToPath(new URL('../../client/dist/', import.meta.url));

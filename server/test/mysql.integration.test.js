@@ -39,7 +39,7 @@ test('real MySQL: registration, independent sessions, restart persistence, inval
     await post(b, 'login', { email: emails[1], password }).expect(200);
     const cookie = firstLogin.headers['set-cookie'][0].split(';')[0];
     assert.match(firstLogin.headers['set-cookie'][0], /HttpOnly/);
-    const [sessions] = await database.pool.query('SELECT session_id, data FROM sessions');
+    const [sessions] = await database.pool.execute("SELECT session_id, data FROM sessions WHERE JSON_EXTRACT(data, '$.userId') IN (?, ?)", users);
     for (const row of sessions) {
       if (users.includes(JSON.parse(row.data).userId)) sessionIds.add(row.session_id);
     }
@@ -57,9 +57,8 @@ test('real MySQL: registration, independent sessions, restart persistence, inval
     await post(b, 'logout', {}).expect(204);
   } finally {
     if (restarted) await restarted.close();
-    // Clean up only records created by this test, never unrelated users or databases.
-    for (const id of sessionIds) await database.pool.execute('DELETE FROM sessions WHERE session_id = ?', [id]);
-    for (const email of emails) await database.pool.execute('DELETE FROM users WHERE email = ?', [email]);
+    // Phase 7 preserves QA accounts too; no manual account/data cleanup is authorized.
+    console.log(JSON.stringify({ retainedAuthQaUserIds: users }));
     await database.close();
   }
 });

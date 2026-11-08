@@ -1,0 +1,23 @@
+.settings-page { flex: 1; padding: 34px 0 60px; }
+.settings-page h1 { font-size: clamp(34px, 4vw, 48px); margin-bottom: 16px; }
+.settings-page h1:focus { outline: none; }
+.settings-layout { display: grid; grid-template-columns: minmax(210px, .8fr) minmax(0, 2fr); align-items: start; gap: 32px; }
+.settings-overview { min-width: 0; border: 1px solid #dfe5d5; border-radius: 12px; background: #edf0e5; padding: 30px 24px; }
+.settings-avatar { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: #dce5d2; color: #315846; font: 600 23px 'Manrope', system-ui, sans-serif; margin-bottom: 28px; }
+.settings-overview h2 { font-size: 23px; margin: 12px 0; }
+.settings-email { font-size: 12px; line-height: 1.8; color: #65745f; overflow-wrap: anywhere; }
+.settings-note { border-top: 1px solid #d4dccb; padding-top: 24px; margin-top: 30px; font-size: 12px; line-height: 1.8; color: #687960; }
+.settings-note p { margin-bottom: 0; }
+.settings-forms { display: grid; gap: 24px; min-width: 0; }
+.settings-card { min-width: 0; background: #fffefa; border: 1px solid #e0e5d9; border-radius: 12px; padding: 28px 32px; }
+.settings-card > .eyebrow { color: #7a8b6f; margin: 0 0 12px; }
+.settings-card h2 { font-size: 23px; letter-spacing: -.7px; }
+.settings-card .muted { overflow-wrap: anywhere; }
+.settings-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; margin-top: 22px; }
+.settings-actions .primary { width: auto; margin: 0; padding: 12px 20px; }
+.settings-actions .secondary { font-size: 12px; }
+.settings-password-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; }
+.settings-card .message { margin: 20px 0 0; overflow-wrap: anywhere; }
+.settings-card .message:focus { outline: 2px solid #c78c41; outline-offset: 3px; }
+@media (max-width: 900px) { .settings-layout { grid-template-columns: minmax(0, 1fr); gap: 24px; } .settings-note { margin-top: 22px; padding-top: 18px; } .settings-avatar { margin-bottom: 20px; } }
+@media (max-width: 640px) { .settings-page { padding-top: 28px; } .settings-card, .settings-overview { padding: 24px 20px; } .settings-password-row { grid-template-columns: minmax(0, 1fr); gap: 0; } .settings-actions { align-items: stretch; } .settings-actions .primary, .settings-actions .secondary { width: 100%; } .settings-card h2 { font-size: 21px; } }

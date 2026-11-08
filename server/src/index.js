@@ -9,7 +9,13 @@ try {
   const server = createApp({ config, ...database }).listen(config.port, config.host, () => {
     console.log(`API ready at http://${config.host}:${config.port}; MySQL connected.`);
   });
-  server.on('error', async () => { console.error('API could not start; check host and port.'); await database.close(); process.exitCode = 1; });
+  server.on('error', async (error) => {
+    console.error(error.code === 'EADDRINUSE'
+      ? `API could not start: ${config.host}:${config.port} is already in use (EADDRINUSE). Stop the other API process, then restart this server.`
+      : `API could not start (${error.code || 'unknown error'}); check host and port.`);
+    await database.close();
+    process.exitCode = 1;
+  });
   let stopping = false;
   for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, () => {
     if (stopping) return;

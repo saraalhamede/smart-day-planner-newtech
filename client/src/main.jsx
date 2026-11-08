@@ -9,12 +9,14 @@ import { workspaceFromSearch, workspaceUrl } from './navigation.js';
 
 const CalendarPage = React.lazy(() => import('./calendar/CalendarPage.jsx'));
 const DashboardPage = React.lazy(() => import('./dashboard/DashboardPage.jsx'));
+const SettingsPage = React.lazy(() => import('./settings/SettingsPage.jsx'));
 
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState('login');
   const [busy, setBusy] = useState(false);
+  const [accountBusy, setAccountBusy] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [email, setEmail] = useState('');
@@ -57,19 +59,20 @@ function App() {
     window.history.replaceState(null, '', workspaceUrl(window.location.href, { day }));
     setSelectedDate(day);
   }
-  const WorkspacePage = { planner: DailyPlanner, calendar: CalendarPage, tasks: TasksPage, dashboard: DashboardPage }[workspace];
+  const WorkspacePage = { planner: DailyPlanner, calendar: CalendarPage, tasks: TasksPage, dashboard: DashboardPage, settings: SettingsPage }[workspace];
   return (
     <div className="app-shell">
       <header className="site-header"><a className="brand" href="/" aria-label="Smart Day Planner home"><span className="brand-icon" aria-hidden="true">✓</span><span>Smart Day <strong>Planner</strong></span></a><span className="project-tag">NEWTECH · GRADUATION PROJECT</span></header>
       {user ? <>
         <nav className="workspace-nav" aria-label="Planner navigation">
-          <button type="button" aria-current={workspace === 'planner' ? 'page' : undefined} disabled={busy} onClick={() => navigate('planner')}>Daily Planner</button>
-          <button type="button" aria-current={workspace === 'calendar' ? 'page' : undefined} disabled={busy} onClick={() => navigate('calendar')}>Calendar</button>
-          <button type="button" aria-current={workspace === 'tasks' ? 'page' : undefined} disabled={busy} onClick={() => navigate('tasks')}>Tasks</button>
-          <button type="button" aria-current={workspace === 'dashboard' ? 'page' : undefined} disabled={busy} onClick={() => navigate('dashboard')}>Dashboard</button>
+          <button type="button" aria-current={workspace === 'planner' ? 'page' : undefined} disabled={busy || accountBusy} onClick={() => navigate('planner')}>Daily Planner</button>
+          <button type="button" aria-current={workspace === 'calendar' ? 'page' : undefined} disabled={busy || accountBusy} onClick={() => navigate('calendar')}>Calendar</button>
+          <button type="button" aria-current={workspace === 'tasks' ? 'page' : undefined} disabled={busy || accountBusy} onClick={() => navigate('tasks')}>Tasks</button>
+          <button type="button" aria-current={workspace === 'dashboard' ? 'page' : undefined} disabled={busy || accountBusy} onClick={() => navigate('dashboard')}>Dashboard</button>
+          <button type="button" aria-current={workspace === 'settings' ? 'page' : undefined} disabled={busy || accountBusy} onClick={() => navigate('settings')}>Settings</button>
         </nav>
         <React.Suspense fallback={<main className="empty-state" role="status">Loading page…</main>}>
-          <WorkspacePage user={user} date={selectedDate} onDateChange={selectDate} onOpenDaily={(day) => navigate('planner', day)} onLogout={logout} signingOut={busy} authError={error} onSessionExpired={() => { setUser(null); setNotice('Your session expired. Please sign in again.'); setPage('login'); }} />
+          <WorkspacePage user={user} date={selectedDate} onDateChange={selectDate} onOpenDaily={(day) => navigate('planner', day)} onLogout={logout} signingOut={busy} authError={error} onSessionExpired={() => { setUser(null); setNotice('Your session expired. Please sign in again.'); setPage('login'); }} onUserChange={updated => { setUser(updated); setEmail(updated.email); }} onAccountBusy={setAccountBusy} onPasswordChanged={() => { setEmail(user.email); setUser(null); setNotice('Password changed. Sign in with your new password.'); setPage('login'); }} />
         </React.Suspense>
       </> : <main className="auth-layout">
         <section className="intro" aria-labelledby="intro-title">

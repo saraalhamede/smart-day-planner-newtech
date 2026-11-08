@@ -1,207 +1,216 @@
-# Smart Day Planner — NewTech
+# Smart Day Planner 📅
+### Full-Stack Task Management & Daily Planning Web Application
 
-Independent NewTech Full Stack Graduation Project. **Phase 5: authentication, task management, Daily Planner, Monthly Calendar, and Basic Dashboard.**
+## 1. Project Overview — نبذة عن المشروع
 
-React + Vite client, Express API, MySQL users, persistent server sessions, user-owned task CRUD, a date-based Daily Planner, a read-only Monthly Calendar, and a read-only Basic Dashboard. All interface text is English. Registration creates an account; sign-in is a separate step. No notifications, AI, check-in, mood, or automatic scheduling features are included.
+**Smart Day Planner** هو تطبيق ويب متكامل (Full-Stack Web Application) يهدف إلى مساعدة المستخدمين على تنظيم مهامهم اليومية، وإدارة أوقاتهم، ومتابعة تقدمهم بطريقة بسيطة وواضحة.
 
-## Reference and independence
+يتيح النظام للمستخدم إنشاء حساب شخصي، إضافة المهام وتحديد أولوياتها ومواعيدها، ثم متابعة تنفيذها من خلال مخطط يومي (Daily Planner)، وتقويم شهري (Calendar)، ولوحة إحصائية (Dashboard).
 
-Read-only reference: [saraalhamede/Smart-daily-planner](https://github.com/saraalhamede/Smart-daily-planner), branch `first-verion`, audited [commit d86360d06600b928ca490fcbbec9792003b01ec6](https://github.com/saraalhamede/Smart-daily-planner/commit/d86360d06600b928ca490fcbbec9792003b01ec6). This application was written independently; the reference repository was not cloned or modified. The local `origin` points to the independent `saraalhamede/smart-day-planner-newtech` repository. Phase 2 work does not modify remotes or push commits.
+تم تطوير المشروع ضمن دورة **Full Stack Development – NewTech** بهدف تطبيق المفاهيم العملية في تطوير واجهات المستخدم، بناء REST APIs، إدارة قواعد البيانات، المصادقة، وربط طبقات النظام ببعضها.
 
-## Requirements
+## 2. Target Audience — الفئة المستهدفة
 
-- Node.js 24+, npm, Git
-- Running MySQL 8+ compatible server. This computer has MySQL Community Server 26.7.0.
-- A local database account authorized to create **only the new schema**, or a DBA who can perform initialization. Runtime needs SELECT/INSERT/UPDATE/DELETE on this application's tables. Do not reuse a production schema.
+يستهدف التطبيق الأشخاص الذين يحتاجون إلى تنظيم مهامهم ومتابعة إنجازاتهم، مثل:
 
-MySQL is installed at `C:\Program Files\MySQL\MySQL Server 26.7\bin` on the setup computer and is not on PATH. The application uses mysql2 directly and does not require the CLI on PATH.
+- **الطلاب:** تنظيم الدراسة والواجبات والمشاريع.
+- **الموظفين:** متابعة المهام والاجتماعات والأعمال اليومية.
+- **العاملين بشكل مستقل (Freelancers):** إدارة المهام والمواعيد.
+- **المستخدمين بشكل عام:** تنظيم الأنشطة الشخصية وإدارة الوقت.
 
-## Local setup (PowerShell)
+## 3. Main Features — الوظائف الأساسية
 
-Run commands from this project's root:
+**Authentication & User Accounts**
+- إنشاء حساب جديد وتسجيل الدخول والخروج.
+- إدارة الجلسات واستعادتها بعد تحديث الصفحة.
+- حفظ مهام كل مستخدم بشكل مستقل.
 
-```powershell
-npm ci
-if (-not (Test-Path -LiteralPath .env)) { Copy-Item .env.example .env }
-node -e "console.log(require('node:crypto').randomBytes(48).toString('hex'))"
+**Task Management (CRUD)**
+- إضافة المهام وعرضها وتعديلها وحذفها.
+- تحديد عنوان المهمة ووصفها وتاريخها.
+- تحديد الأولوية: Low / Medium / High.
+- إضافة وقت بداية ونهاية اختياريين.
+- التحقق من المدخلات ومنع تداخل أوقات المهام.
+
+**Daily Planner**
+- اختيار اليوم وعرض مهامه.
+- تقسيم المهام إلى Waiting وIn Progress وCompleted.
+- بدء المهمة وإكمالها يدويًا.
+- عرض المهام ذات الأوقات المحددة في Timeline مرتبة زمنيًا.
+
+**Monthly Calendar**
+- عرض المهام ضمن تقويم شهري.
+- التنقل بين الأشهر والسنوات.
+- عرض عدد المهام لكل يوم.
+- الانتقال مباشرة من التقويم إلى المخطط اليومي.
+
+**Dashboard**
+- عرض إجمالي المهام.
+- عرض المهام المكتملة وقيد التنفيذ والمنتظرة.
+- حساب نسبة الإنجاز وعرض Progress Bar.
+
+**Data Persistence & Security**
+- حفظ المستخدمين والمهام والجلسات في MySQL.
+- مصادقة قائمة على Sessions وHttpOnly Cookies.
+- تخزين كلمات المرور باستخدام `scrypt` مع Salt.
+- تقييد الوصول إلى المهام بحسب المستخدم المصادق.
+
+## 4. Technologies Used — التقنيات المستخدمة
+
+| Layer | Technologies |
+|---|---|
+| Frontend | React, JavaScript, CSS |
+| Frontend Build Tool | Vite |
+| Backend | Node.js, Express.js |
+| Database | MySQL, InnoDB |
+| Database Driver | mysql2 |
+| Authentication | express-session, express-mysql-session |
+| Testing | Node.js Test Runner, Supertest |
+| Version Control | Git & GitHub |
+
+## 5. System Architecture — هيكلية النظام
+
+يعتمد المشروع على معمارية تتكون من ثلاث طبقات رئيسية:
+
+**1. Frontend — React**
+
+مسؤول عن عرض الصفحات، استقبال مدخلات المستخدم، إدارة حالة الواجهة، وإرسال طلبات HTTP إلى الخادم.
+
+**2. Backend — Node.js & Express**
+
+مسؤول عن تنفيذ REST APIs، التحقق من بيانات المستخدم، إدارة الجلسات والصلاحيات، وتنفيذ قواعد العمل الخاصة بالمهام.
+
+**3. Database — MySQL**
+
+مسؤولة عن حفظ بيانات المستخدمين والمهام والجلسات، واسترجاعها عند الحاجة.
+
+**Data Flow:**
+
+`React Frontend → Express REST API → MySQL Database`
+
+بعد تنفيذ العملية، يعيد Backend استجابة إلى React تتضمن البيانات المطلوبة أو نتيجة العملية.
+
+### Project Structure
+
+- `client/` — تطبيق React ومكونات الواجهة، بما فيها Tasks وDaily Planner وCalendar وDashboard.
+- `server/` — خادم Express ومسارات API والمصادقة والتحقق والتعامل مع قاعدة البيانات.
+- `server/db/` — ملفات إعداد قاعدة البيانات وترحيلاتها.
+- `docs/` — تقارير التطوير والفحص والتوثيق.
+- `.env.example` — قالب إعداد متغيرات البيئة.
+- `README.md` — تعليمات المشروع والتشغيل.
+
+### Database Structure
+
+تستخدم قاعدة البيانات `smart_day_planner_newtech` ثلاثة جداول رئيسية:
+
+- `users`: معلومات المستخدمين وبيانات المصادقة.
+- `tasks`: المهام وتواريخها وأولوياتها وحالاتها.
+- `sessions`: بيانات جلسات تسجيل الدخول.
+
+العلاقة الأساسية هي One-to-Many بين المستخدم ومهامه، بحيث يمكن لكل مستخدم امتلاك عدة مهام.
+
+## 6. How to Run — طريقة تشغيل المشروع
+
+### Prerequisites
+
+تأكد من تثبيت:
+
+- Node.js 24 أو أحدث.
+- npm.
+- MySQL.
+- Git.
+
+### Installation
+
+**Step 1 — Clone the repository**
+
+```bash
+git clone <repository-url>
+cd smart-day-planner-newtech
 ```
 
-Edit the ignored `.env` locally: configure `DB_USER`, `DB_PASSWORD`, and a random `SESSION_SECRET` of at least 32 characters. Quote environment values containing `#` or spaces. Keep `DB_NAME=smart_day_planner_newtech`. Never put real values into `.env.example`, commit `.env`, or paste secrets into logs/chat. The setup agent already generated a local session secret if `.env` is present.
+استبدل `<repository-url>` برابط المستودع الفعلي.
 
-For first-time local initialization, use an existing MySQL account with permission to create the new schema (commonly `root`) and that account's MySQL password. The template does not create a database account. Use a schema-restricted application account before deployment.
+**Step 2 — Install dependencies**
 
-```powershell
+```bash
+npm ci
+```
+
+**Step 3 — Configure environment variables**
+
+أنشئ ملف `.env` من القالب `.env.example`، ثم اضبط اتصال MySQL وإعدادات الجلسة.
+
+أهم المتغيرات:
+
+```dotenv
+NODE_ENV=development
+HOST=127.0.0.1
+PORT=3001
+CLIENT_ORIGIN=http://127.0.0.1:5173
+
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_USER=
+DB_PASSWORD=
+DB_NAME=smart_day_planner_newtech
+
+SESSION_SECRET=
+```
+
+القيم السرية وبيانات الاتصال الفعلية تُضبط محليًا ولا تُرفع إلى GitHub.
+
+**Step 4 — Initialize the database**
+
+عند إنشاء قاعدة المشروع لأول مرة فقط، وبعد تجهيز صلاحيات MySQL اللازمة:
+
+```bash
 npm run db:init
-npm run db:check
+```
+
+إذا كانت قاعدة البيانات مهيأة مسبقًا، تجاوز هذه الخطوة. لا تُعد تشغيل `db:init` على قاعدة موجودة.
+
+**Step 5 — Start the application**
+
+```bash
 npm run dev
 ```
 
-Open [http://127.0.0.1:5173](http://127.0.0.1:5173). API: `http://127.0.0.1:3001`. Use the exact `127.0.0.1` address, matching `CLIENT_ORIGIN`. Vite proxies `/api` to Express, preserving same-origin cookies. No credentials belong in client variables.
+افتح التطبيق من المتصفح:
 
-`db:init` is one-time only: it uses plain `CREATE DATABASE`, deliberately failing if the database already exists. It never drops/resets existing databases. It creates `users` and `sessions` from `server/db/schema.sql`. If initialization fails midway, inspect the newly created schema manually before recovery; do not reset any other database. After initialization, use a dedicated account restricted to `smart_day_planner_newtech` for runtime. No account or grants are created automatically.
+**Frontend:** `http://127.0.0.1:5173`
 
-Fresh initialization also creates `tasks` from `server/db/migrations/002-tasks.sql`. **If Phase 1 is already initialized**, run the following once instead of `db:init`:
+**Backend API:** `http://127.0.0.1:3001`
 
-```powershell
-npm run db:migrate
-npm run db:check
+### Testing
+
+لتشغيل الاختبارات المتاحة:
+
+```bash
+npm test
+npm run test:integration
+npm run build
 ```
 
-`db:migrate` adds only the tasks table, indexes and constraints, preserving users and sessions. It deliberately fails if `tasks` already exists; do not re-run it on an initialized Phase 2 database. Runtime startup verifies all three tables, so an unmigrated installation stops with a schema error.
+اختبارات التكامل قد تنشئ أو تحذف بيانات اختبار؛ يُنصح بتنفيذها فقط في بيئة اختبار معزولة، وليس على قاعدة تحتوي بيانات مهمة.
 
-If Vite already runs for this project on port 5173, reuse it and run `npm start` for Express instead of starting a second Vite process. The default date in the interface is the browser's local date; clear the date using **Show all** to view every date.
+## 7. Project Scope & Limitations
 
-## Commands
+يركز المشروع على **التنظيم اليدوي للمهام ومتابعتها**.
 
-| Command | Purpose |
-| --- | --- |
-| `npm run dev` | Start Vite and Express; stop with Ctrl+C |
-| `npm run db:init` | Create only the new schema and its three tables, once |
-| `npm run db:migrate` | Add tasks to an existing Phase 1 schema, once; no reset |
-| `npm run db:check` | Verify real MySQL connection, table shape and session store readiness |
-| `npm test` / `npm run test` | Server regression plus client daily/monthly date, Dashboard statistics, keyboard-navigation and URL-state tests |
-| `npm run test:integration` | Real MySQL authentication, task CRUD, ownership, conflicts, concurrency, and actual backend restart tests; cleans up only generated QA records |
-| `npm run build` | Production frontend build |
-| `npm start` | Start API; in production also serve built frontend |
-| `npm audit` | Check installed dependency advisories |
+لا يتضمن الإصدار الحالي ذكاءً اصطناعيًا (AI)، أو توليد جداول تلقائيًا، أو تحليل المزاج والطاقة، أو نظام إشعارات.
 
-Tests open temporary loopback HTTP ports. Restricted environments may require permission to connect to localhost. Integration tests require configured `.env`, an initialized database, and development mode. They fail instead of silently skipping when those are unavailable.
 
-The repository has no configured lint command or React component test runner. Client model tests use Node's built-in test runner (`npm run test -w client`); frontend verification also uses the production build and browser QA. No additional dependencies were introduced for Phases 2–5.
+## 8. Project Information
 
-## API
+**Project Name:** Smart Day Planner – NewTech
 
-All responses are JSON except successful logout (204). Unsafe requests must include `Origin` exactly matching `CLIENT_ORIGIN`, including CLI/API tests. Browser fetch adds it automatically. No cross-origin API access is enabled.
+**Project Type:** Full-Stack Web Application
 
-| Method | Endpoint | Result |
-| --- | --- | --- |
-| POST | `/api/auth/register` | `{ name, email, password }` → 201 and public user; 400 invalid input, 409 duplicate email |
-| POST | `/api/auth/login` | `{ email, password }` → 200, public user and session cookie; 401 invalid credentials |
-| GET | `/api/auth/me` | Public user for the server session; 401 when unauthenticated |
-| POST | `/api/auth/logout` | Destroy server session and expire cookie; 204, or 401 if unauthenticated |
+**Developed by:** Sara Alhamede
 
-Passwords: 12–128 characters. Email is trimmed and lowercased. `userId` supplied by the client has no authentication role. The reusable authentication middleware loads the current user from MySQL; user deletion revokes access.
+**Educational Program:** NewTech – Full Stack Development
 
-## Tasks
+**Purpose:** Graduation Project
 
-All task routes require the existing session. Identity comes exclusively from the server session. `user_id`, IDs, timestamps and unknown fields in the request body are rejected. Another user's task is indistinguishable from a missing task (404).
-
-| Method | Endpoint | Result |
-| --- | --- | --- |
-| GET | `/api/tasks` or `/api/tasks/` | `{ tasks: [...] }`, current user's tasks only |
-| GET | `/api/tasks/:id` | `{ task: {...} }`, or 404 |
-| POST | `/api/tasks` | 201, `{ task: {...} }`, and Location header |
-| PATCH | `/api/tasks/:id` | Partial update; 200, `{ task: {...} }` |
-| DELETE | `/api/tasks/:id` | 204 after deletion, or 404 |
-
-Optional list filters: `?date=2026-11-05&status=waiting&priority=medium`. Filters combine with AND; omitted filters match all values. Invalid filters return 400. Results sort by date, timed tasks first, start time, then ID. The list is intentionally unpaginated for this small graduation-project MVP.
-
-Example task body:
-
-```json
-{
-  "title": "Review project notes",
-  "description": "Prepare a short checklist.",
-  "task_date": "2026-11-05",
-  "start_time": "09:00",
-  "end_time": "10:00",
-  "priority": "medium",
-  "status": "waiting"
-}
-```
-
-- Title: trimmed, 1–180 Unicode characters. Description: optional text, maximum 2,000 characters, default empty string. Existing 8 KB JSON limit remains in force.
-- Date: required real `YYYY-MM-DD`, years 1000–9999 (MySQL DATE range), with leap-year validation. API reads DATE/TIME as strings; task dates never go through JavaScript Date or UTC conversion. Timestamp metadata is returned as database-session time text.
-- Priority: `low`, `medium` (default), `high`. Status: `waiting` (default), `in_progress`, `completed`. All status changes are manual. Completed tasks stay stored and still reserve their time interval.
-- Untimed: omit both times on creation or send both as null. Timed: both times required in 24-hour `HH:mm`, with start earlier than end. Send both as null to remove timing on PATCH; an invalid partial pair returns 400. No cross-midnight intervals.
-- Overlap means `existing.start < new.end AND existing.end > new.start` for the same user/date, regardless of status. Adjacent intervals are allowed. Conflict returns 409 and preserves the original task.
-- At most one in-progress task per user/date. This is checked on create/edit/date changes and backed by a unique index on `(user_id, in_progress_date)`, where the internal generated date is null for other statuses. The internal column is not exposed in API responses.
-- Create, edit and delete acquire a locking read on the owning user row inside a MySQL transaction; the row is not modified. This serializes same-user mutations before conflict checks and prevents simultaneous requests from bypassing the rules. Separate users can save independently. Lock failures return 503 with a retry message.
-- The task-to-user foreign key uses RESTRICT; users are never removed automatically by task operations.
-
-After sign-in, the interface offers add/edit forms, task list, date/status/priority filters, manual status controls, and a keyboard-accessible delete-confirmation dialog. Mutations show pending/success/error states; list requests support cancellation to prevent stale filter results. An expired session returns the user to sign-in.
-
-## Daily Planner
-
-After sign-in, **Daily Planner** opens by default unless a valid `view` is requested in the page URL; **Tasks** keeps the Phase 2 page available. The planner defaults to today's browser-local calendar date. Select a date or use Previous, Next, or Today. The optional `?day=YYYY-MM-DD` page URL preserves a valid selected date across refresh and navigation. Invalid URL dates fall back to today. Date navigation uses calendar arithmetic, including month/year and leap-century boundaries, without UTC or DST conversions.
-
-The planner reuses `GET /api/tasks?date=YYYY-MM-DD` and shows only that date's tasks in Waiting, In Progress, and Completed sections. **Start task** and **Complete** call the existing `PATCH /api/tasks/:id` with only the requested status. The server remains responsible for authentication, ownership, and the one-in-progress-per-day rule; a second active task returns the existing 409 error. Completed records stay in MySQL.
-
-Daily Timeline is a second, read-only view of the same task objects: timed tasks sort by start time and show their original start/end/title/status; untimed tasks appear separately. Rendering never writes to the API, creates records, assigns times, or changes dates. Status sections and Timeline intentionally repeat a task visually without duplicating its database record.
-
-Edit, delete confirmation, and optional Add task reuse the existing Phase 2 form/list/dialog and endpoints. Finish or cancel an open task form before changing the selected day. Requests for an old date are cancelled when the date changes, and the previous day's tasks are hidden while the next day loads. The interface includes empty, loading, retry, action-error, and success states.
-
-Phase 3 adds **no API endpoint, schema migration, table, or dependency**, and leaves existing backend authentication and task validation rules unchanged.
-
-## Monthly Calendar
-
-The **Calendar** navigation button opens a read-only monthly view. Without an explicit selected date, it starts in the current browser-local month. A date already selected in Daily Planner or the `day` URL parameter takes precedence, so both views stay on the same date. The shared state now lives in the application shell; the existing Daily Planner date controls and API behavior are preserved.
-
-- Weekdays run **Monday–Sunday**. Gregorian arithmetic builds only real dates, with blank cells around the month. Previous/Next handle December/January and leap years within the existing 1000–9999 date range. A month input allows direct navigation; changing the month selects its first day. **This month** selects today's local date.
-- The existing authenticated `GET /api/tasks` loads only the session owner's task list. Because the API supports exact-date filters rather than a month range, Calendar filters the list by `task_date` on the client, as intended for this small MVP. There is no new endpoint or table.
-- Dates with tasks show a count across all statuses. Clicking a date selects it and updates its read-only summary; **Open Daily Planner** opens that same date for task management. Calendar contains no task create/edit/delete/status controls.
-- `?view=calendar&day=YYYY-MM-DD` restores the selected view and date after refresh or sign-in. `view=planner` and `view=tasks` restore the existing pages. Invalid view names fall back to Daily Planner. No routing library is used.
-- The selected date is the grid's Tab entry point. Arrow keys move by day/week, Home/End select the first/last day of the month, and Enter/Space use native button activation. Focus follows keyboard navigation across months. The selected day and today have distinct indicators.
-- Calendar uses loading, empty-day/month and retry states. **Refresh Calendar** reloads data; returning from Daily Planner also fetches current records. Display never changes dates, times, status, priority, or database records. There is no realtime refresh or scheduling.
-- Calendar is loaded on demand with React.lazy/Suspense, keeping it out of the initial page bundle without adding dependencies.
-
-## Basic Dashboard
-
-**Dashboard** shows **All Tasks** for the signed-in user across all dates. Four read-only cards display Total Tasks, Completed Tasks, In Progress Tasks, and Waiting Tasks. Total equals the sum of those three statuses; completed tasks remain included. Completion Rate is `(Completed / Total) × 100`, rounded to one decimal place, with `0.0%` for an empty account. A labelled native progress bar shows the same percentage.
-
-Opening Dashboard or using **Refresh Dashboard** fetches the existing authenticated `GET /api/tasks`. Statistics are derived from returned statuses only, without mock data, localStorage, writes, new endpoints, or schema changes. Returning after task completion/deletion fetches current records. Loading, empty, error/retry and expired-session states are included. The `view=dashboard` URL restores the view after reload/sign-in and preserves the selected planner date. Dashboard is loaded on demand without a new dependency.
-
-## Security and deployment
-
-- Password hashing: Node.js crypto scrypt, random 16-byte salts, N=32768/r=8/p=1, 64-byte key; constant-time comparison. Password hashes never appear in API responses.
-- Server-side MySQL session store. Cookies are HttpOnly, SameSite=Lax, path `/`, expire after eight hours. Secure is enabled in production. IDs rotate on successful login. Logout deletes the stored session.
-- Parameterized queries, small JSON limit, server validation, security headers, exact-origin write checks, no-store API responses, and 30 authentication attempts per IP per 15 minutes.
-- `express-mysql-session` 3.0.3 pins an older mysql2. Root npm overrides select patched mysql2 3.24.6+ within the same major version; verify compatibility with the integration test after upgrades. See [upstream store documentation](https://github.com/chill117/express-mysql-session).
-- Production requires `NODE_ENV=production`, HTTPS `CLIENT_ORIGIN`, TLS termination, and `npm run build`. Set `TRUST_PROXY=true` only behind one trusted reverse proxy that replaces forwarded headers; never expose the backend directly in that configuration. Session cookies will not be issued over plain HTTP in production.
-- Use a persistent, randomly generated secret across restarts, a schema-restricted DB account, and HTTPS. The rate limiter is process-local; shared limiting is needed if deploying multiple API processes.
-- No email verification or password reset is included in this phase.
-
-## Layout
-
-```text
-client/                  React authentication interface and Vite proxy
-server/src/app.js        HTTP security and authentication routes
-server/src/config.js     Validated environment settings and schema guard
-server/src/database.js   mysql2 pool and MySQL session store
-server/src/users.js      Parameterized user queries
-server/src/passwords.js  scrypt hashing and verification
-server/src/tasks/        Task routes, input validation and transactional queries
-server/src/middleware/   Reusable server authentication check
-server/db/schema.sql     Users and sessions base schema
-server/db/migrations/    Additive tasks schema for fresh/existing installations
-server/scripts/          One-time setup/migration and connection check
-server/test/             Authentication, task validation and real MySQL acceptance tests
-client/src/tasks/        Task form, list, delete dialog and page components
-client/src/planner/      Daily page, date navigation, status sections, timeline and view model
-client/src/calendar/     Monthly grid, read-only day summary, data hook and calendar model
-client/src/dashboard/    Read-only all-task statistics, progress indicator and data hook
-client/src/navigation.js Shared view/date URL state without a routing dependency
-client/test/             Daily/monthly dates, read-only data, keyboard and navigation tests
-.env.example             Non-secret configuration template
-docs/                    Phase reports, QA findings and local demo verification
-```
-
-Phase 1 was checkpointed locally as `4d52415` after its baseline tests and secret review passed. Phase 2 implementation is saved in `d5278ac`; the final review on 6 November 2026 passed authentication/task tests, real MySQL integration tests, and the production build. See `docs/phase-2-report.md` for actual verification.
-
-Phase 3 started from `e2b7486f3bf62c2616545820ef7353a90e3180cc` and passed final review on 6 November 2026. Its approved local checkpoint is `5b700e4` (`feat: implement daily planner with task status and timeline`). See `docs/phase-3-report.md` for executed checks and results.
-
-Phase 4 started from `5b700e474556e9390f175163b45ae3a42f1324fd` and passed final review on 6 November 2026. Its local checkpoint is `da0d615` (`feat: implement monthly calendar with daily planner navigation`); no push was performed. See `docs/phase-4-report.md` for actual results and limitations.
-
-Phase 5 started from `da0d6153b6c99724ac6ba0fdb59686f958594a3b` and passed final review on 6 November 2026. Its local checkpoint is `b3301495d484d4e78bcd547ac006116387e3b8ec` (`feat: implement basic dashboard with task statistics`). See `docs/phase-5-report.md` for verification and remaining risks.
-
-## Current QA and local demonstration status
-
-Read [Phase 6A QA](docs/phase-6a-qa-report.md), [FK investigation](docs/phase-6b1-fk-investigation.md), [unapplied workaround plan](docs/phase-6b2-safe-fix-preparation.md), and the later [QA cleanup and local demo verification](docs/qa-cleanup-local-demo-report.md). Historical reports describe the records and permissions at their own execution time.
-
-The local MySQL 26.7.0 server accepted two diagnostic tasks with nonexistent owners despite an existing foreign key and enabled checks. The evidence strongly matches MySQL Bug #121438; the workaround has **not** been applied or verified. Cleaning the diagnostic records does **not** fix enforcement. API authentication, ownership checks, and task validation passed regression, but full database integrity and final delivery readiness remain unapproved. The known low-severity focus-restoration issue after cancelling the delete dialog also remains unresolved.
-
-With explicit approval, the three historical QA accounts, twelve QA tasks (including the two diagnostic orphans), and their two remaining sessions were removed after a protected, encrypted local backup. Original user/task fingerprints and table definitions were unchanged. A separate browser test account was also backed up and cleaned after verification. Backups, credentials, screenshots, and temporary scripts stay ignored under `.local/` or `.env`; backups are encrypted for the current Windows user and are not portable to a new profile without a separate recovery plan. Decryption/hash checks passed; a database restore was not performed.
-
-The latest local run passed 11 server tests, 21 client tests, 18 MySQL integration results, and the production build. Integration cleanup was reviewed and confined to newly generated QA accounts. Browser checks covered registration/login/logout, CRUD, Daily Planner, Calendar, Dashboard, refresh/persistence, and desktop/mobile layouts. See the report for the initial sandbox EACCES failure and exact verification limits.
-
-For a local demonstration, use the existing documented `npm run dev` command and open `http://127.0.0.1:5173`. Keep MySQL running and use a dedicated demonstration account. Functional demo readiness is **CONDITIONAL**, with the unresolved FK finding disclosed; this is not a production or final-integrity sign-off. MySQL configuration, application source, schema, API contracts, and dependencies were not changed. No presentation preparation or push was performed.
+**Development Focus:** Frontend Development, Backend APIs, Database Management, Authentication, and Testing.
